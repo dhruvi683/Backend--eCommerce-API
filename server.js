@@ -8,6 +8,8 @@ connectDB();
 
 const userRouter = require("./Routes/userRoute");
 const productRouter = require("./Routes/productRoute");
+const categoryRouter = require("./Routes/categoryRoute");
+const orderRouter = require("./Routes/orderRoute");
 
 // Middlewares
 app.use(cors());
@@ -23,6 +25,8 @@ app.get("/", (req, res) => {
 // Routes
 app.use("/users", userRouter);
 app.use("/products", productRouter);
+app.use("/categories", categoryRouter);
+app.use("/orders", orderRouter);
 
 app.listen(port, () =>
   console.log(`Server running on http://localhost:${port}`.bgGreen.black)
