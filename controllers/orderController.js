@@ -61,4 +61,45 @@ const getOrderById = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
-module.exports = { getAllOrders, createOrder, getOrderById };
+
+// Update a specific order by ID
+
+const updateOrder = async (req, res) => {
+  try {
+    const { userId, products, total } = req.body;
+
+    //check if user exist
+    const user = await User.findById(userId);
+    if (!user) {
+      res.status(404).json({ message: "User not found" });
+    }
+    // Check if products exists
+    for (const item of products) {
+      const product = await Product.findById(item.productId);
+
+      if (!product) {
+        return res
+          .status(404)
+          .json({ message: `Product with ID ${item.productId} not found` });
+      }
+    }
+
+    const order = await Order.findByIdAndUpdate(
+      req.params.id,
+      {
+        userId,
+        products,
+        total,
+      },
+      { new: true }
+    );
+
+    if (!order) {
+      return res.status(404).json({ message: "Order not found" });
+    }
+    res.status(200).json(order);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+module.exports = { getAllOrders, createOrder, getOrderById, updateOrder };
