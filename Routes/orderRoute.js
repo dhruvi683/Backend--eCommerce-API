@@ -1,5 +1,5 @@
 const express = require("express");
-const orderRouter = express.Router;
+const orderRouter = express.Router();
 
 const {
   getAllOrders,
