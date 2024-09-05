@@ -4,7 +4,7 @@ const orderRouter = express.Router();
 const {
   getAllOrders,
   createOrder,
-  getOrderById,
+  getOneOrder,
   updateOrder,
   deleteOrder,
 } = require("../controllers/orderController");
@@ -16,7 +16,7 @@ orderRouter
 
 orderRouter
   .route("/:id")
-  .get(getOrderById) //Get a specific Order by ID
+  .get(getOneOrder) //Get a specific Order by ID
   .put(updateOrder) // update a specific order by ID
   .delete(deleteOrder); //Delete a specific order by ID
 

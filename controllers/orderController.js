@@ -2,106 +2,118 @@ const Order = require("../schemas/Order");
 const User = require("../schemas/User");
 const Product = require("../schemas/Product");
 
-//Retrieve a list of all orders
+// Get all orders
 const getAllOrders = async (req, res) => {
   try {
-    const orders = await Order.find();
-    if (!orders.length) {
-      return res.status(200).json({ message: "No orders found in Database" });
-    } else {
+      const orders = await Order.find()
+          .populate({
+              path: 'userId',
+              select: 'name',  // Only select the user's name
+          })
+          .populate({
+              path: 'products.productId',
+              select: 'name',  // Only select the product's name
+          });
+
+      if (!orders.length) {
+          return res.status(200).json({ message: "No orders found in the DB" });
+      }
       return res.status(200).json(orders);
-    }
   } catch (error) {
-    return res.status(500).json(error);
+      return res.status(500).json(error);
   }
 };
 
-//create a new order
+// Create a new order
 const createOrder = async (req, res) => {
   try {
-    const { userId, products, total } = req.body;
+      const { userId, products } = req.body;
 
-    // check if user exists
-    const user = await User.findById(userId);
-    if (!user) {
-      return res.status(404).json({ message: "User not found" });
-    }
-    // check if products exist
-    for (const item of products) {
-      const product = await Product.findById(item.productId);
-      if (!product) {
-        return res
-          .status(404)
-          .json({ message: `Product with ID ${item.productId}not found` });
+      // Calculate total price
+      let total = 0;
+      for (const item of products) {
+          const product = await Product.findById(item.productId);
+          if (!product) {
+              return res.status(404).json({ message: `Product with ID ${item.productId} not found` });
+          }
+          total += product.price * item.quantity;
       }
-    }
 
-    //create the order
-    const order = new Order({
-      userId,
-      products,
-      total,
-    });
-    await order.save();
-    res.status(201).json(order);
+      const newOrder = new Order({
+          userId,
+          products,
+          total,  // Set the calculated total price
+      });
+
+      const savedOrder = await newOrder.save();
+      return res.status(201).json(savedOrder);
   } catch (error) {
-    return res.status(500).json({ message: error.message });
+      return res.status(500).json(error);
   }
 };
 
-//  Retrieve a specific order by ID
-const getOrderById = async (req, res) => {
+// Get one order by ID
+const getOneOrder = async (req, res) => {
   try {
-    const order = await Order.findById(req.params.id);
-    if (!order) {
-      return res.status(404).json({ message: "Order not found" });
-    }
-    res.status(200).json({ order });
+      const { id } = req.params;
+      const order = await Order.findById(id)
+          .populate({
+              path: 'userId',
+              select: 'name',  // Only select the user's name
+          })
+          .populate({
+              path: 'products.productId',
+              select: 'name',  // Only select the product's name
+          });
+
+      if (order) {
+          return res.status(200).json({ order });
+      }
+      return res.status(404).json({ message: 'Order not found' });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+      return res.status(500).json(error);
   }
 };
 
-// Update a specific order by ID
 
+// Update an order by ID
 const updateOrder = async (req, res) => {
   try {
-    const { userId, products, total } = req.body;
+      const { id } = req.params;
+      const { userId, products } = req.body;
 
-    //check if user exist
-    const user = await User.findById(userId);
-    if (!user) {
-      res.status(404).json({ message: "User not found" });
-    }
-    // Check if products exists
-    for (const item of products) {
-      const product = await Product.findById(item.productId);
-
-      if (!product) {
-        return res
-          .status(404)
-          .json({ message: `Product with ID ${item.productId} not found` });
+      // Calculate the updated total price
+      let total = 0;
+      for (const item of products) {
+          const product = await Product.findById(item.productId);
+          if (!product) {
+              return res.status(404).json({ message: `Product with ID ${item.productId} not found` });
+          }
+          total += product.price * item.quantity;
       }
-    }
 
-    const order = await Order.findByIdAndUpdate(
-      req.params.id,
-      {
-        userId,
-        products,
-        total,
-      },
-      { new: true }
-    );
+      const updatedOrder = await Order.findByIdAndUpdate(
+          id,
+          { userId, products, total },  // Set the updated total price
+          { new: true }
+      ).populate({
+          path: 'userId',
+          select: 'name',  // Populate user's name
+      }).populate({
+          path: 'products.productId',
+          select: 'name',  // Populate product's name
+      });
 
-    if (!order) {
-      return res.status(404).json({ message: "Order not found" });
-    }
-    res.status(200).json(order);
+      if (!updatedOrder) {
+          return res.status(404).json({ message: 'Order not found' });
+      }
+
+      return res.status(200).json(updatedOrder);
   } catch (error) {
-    res.status(500).json({ message: error.message });
+      return res.status(500).json(error);
   }
 };
+
 
 // Delete a specific order by ID
 const deleteOrder = async (req, res) => {
@@ -118,7 +130,7 @@ const deleteOrder = async (req, res) => {
 module.exports = {
   getAllOrders,
   createOrder,
-  getOrderById,
+  getOneOrder,
   updateOrder,
   deleteOrder,
 };
