@@ -4,7 +4,7 @@ const Category = require('../schemas/Category');
 // Get all products
 const getAllProducts = async (req, res) => {
     try {
-        const products = await Product.find().populate('category');
+        const products = await Product.find().populate('categoryId');
         if (!products.length) {
             return res.status(200).json({ message: "No products found in the database" });
         } else {
@@ -19,7 +19,7 @@ const getAllProducts = async (req, res) => {
 const getOneProduct = async (req, res) => {
     try {
         const { id } = req.params;
-        const product = await Product.findById(id).populate('category');
+        const product = await Product.findById(id).populate('categoryId');
         if (product) {
             return res.status(200).json({ product });
         }

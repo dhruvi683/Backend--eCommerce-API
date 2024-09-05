@@ -18,9 +18,9 @@ const ProductSchema = new mongoose.Schema({
         required: true,
         min: [0, 'Price must be a positive number'],
     },
-    category: {
+    categoryId: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'Category',
+        ref: 'Category', 
         required: true,
     },
 });
