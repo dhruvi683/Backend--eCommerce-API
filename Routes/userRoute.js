@@ -19,4 +19,3 @@ userRouter.route('/:id')
     .delete(deleteUser); // Delete a specific user by ID
 
 module.exports = userRouter;
-
