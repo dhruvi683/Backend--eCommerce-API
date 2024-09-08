@@ -20,8 +20,23 @@ const ProductSchema = new mongoose.Schema({
     },
     categoryId: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'Category', 
+        ref: 'Category',
         required: true,
+    },
+    isPopular: {
+        type: Boolean,
+        default: false,
+    },
+    isBestseller: {
+        type: Boolean,
+        default: false,
+    },
+    isNewArrival: {
+        type: Boolean,
+        default: false,
+    },
+    image: {
+        type: String,  // URL of the image
     },
 });
 
