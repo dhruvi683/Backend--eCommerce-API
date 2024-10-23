@@ -101,6 +101,8 @@ const deleteProduct = async (req, res) => {
     }
 };
 
+
+// for uplode image 
 const uploadProductImage = async (req, res) => {
     try {
         const { id } = req.params;
